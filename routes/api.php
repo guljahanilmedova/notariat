@@ -21,4 +21,5 @@ Route::get('notariat_actions', '\\App\\Http\\Controllers\\Api\\TblDocumentTypesC
 Route::get('documents/{id}', '\\App\\Http\\Controllers\\Api\\TblDocumentsController@documents');
 Route::post('store_ticket', '\\App\\Http\\Controllers\\Api\\TblTicketsController@store');
 Route::post('ticket_status', '\\App\\Http\\Controllers\\Api\\TblTicketsController@ticket_status');
+Route::post('my_tickets', '\\App\\Http\\Controllers\\Api\\TblTicketsController@my_tickets');
 Route::post('test', function (){ return "test_hello"; });

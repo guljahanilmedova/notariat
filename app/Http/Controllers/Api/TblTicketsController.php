@@ -89,9 +89,8 @@ class TblTicketsController extends Controller
     {
         TblTickets::whereDateNot('date_taken', Carbon::today())->remove();
     }
-
     //store ticket end
-
+    
     //ticket status start
     public function ticket_status(Request $request){
 
@@ -100,7 +99,7 @@ class TblTicketsController extends Controller
                                  select('time_taken','ticket_no')->
                                  get();
          $my_ticket = TblTickets::where('group_id', $request->group_id)->
-                                  where('ticket_mobile', $request->phone_number)->
+                                  where('ticket_mobile', '+'.$request->phone_number)->
                                   whereDate('date_taken', Carbon::today())->
                                   select('time_taken','ticket_no')->
                                   get();
@@ -108,14 +107,14 @@ class TblTicketsController extends Controller
          return response()->json([ 'tickets'=>$tickets, 'my_ticket'=>$my_ticket ]);
     }
     //ticket status end
-
+    //my ticket start
     public function my_tickets(Request $request){
 
-        $my_ticket = TblTickets::where('ticket_mobile', $request->phone_number)->
+        $my_ticket = TblTickets::where('ticket_mobile', '+'.$request->phone_number)->
                                  select('time_taken','ticket_no')->
                                  get();
 
         return response()->json([ 'my_ticket'=>$my_ticket ]);
-
     }
+    //my ticket end
 }
