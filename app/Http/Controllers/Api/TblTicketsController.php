@@ -11,65 +11,27 @@ use Illuminate\Http\Request;
 class TblTicketsController extends Controller
 {
     //store ticket start
-    public function store(Request $request){
-
-        $ticketcount = $this->checkTicketForDouble($request);
-        if($ticketcount<4){
-            $ticket_id = $this->get_online_ticket_id($request);
+    public function store_ticket(Request $request){
+        
+        $data = $request->all();
+        $ticketcount = count(TblTickets::where('ticket_mobile', '+993'.$data['phone_number'])->where('group_id',$data['group_id'])->whereDate('date_taken',Carbon::today())->get());  
+        
+        if($ticketcount<4){ 
+           
+            
+            $ticket_id =  count(TblTickets::where('group_id', $data['group_id'])->whereDate('date_taken',Carbon::today())->where('tk_online',1)->get())+1;
             $newticketid = "I$ticket_id";
-            $groupLetter = $this->get_groupLetter($request);
-            $max_ticket_uid = $this->get_max_online_tickets();
+            $groupLetter = TblGroups::where('group_id', $data['group_id'])->pluck('ticketLetter')->first();
+            $max_ticket_uid = TblTickets::latest('ticket_uid')->pluck('ticket_uid')->first();
             $newbarcode = "$groupLetter"."I$max_ticket_uid";
-            $lastid = $this->addticket($newbarcode,$newticketid,$request);
-            if($lastid){
+            
 
-                return response ()->json(['message'=>'success']);
-            }
-                return response ()->json(['message'=>'failed']);
-
-        }
-        //$this->deleteOldTickets();
-
-    }
-
-    public function checkTicketForDouble($request)
-    {
-
-        $count = count(TblTickets::where('ticket_mobile', '+'.$request->phone_number)->
-                                   where('group_id',$request->group_id)->
-                                   whereDate('date_taken',Carbon::today())->get());
-        return $count;
-    }
-
-    public function get_online_ticket_id($request)
-    {
-
-        $online_ticket_id = count(TblTickets::where('group_id', $request->group_id)->
-                                              whereDate('date_taken',Carbon::today())->
-                                              where('tk_online',1)->get())+1;
-
-        return $online_ticket_id;
-    }
-
-    public function get_groupLetter($request){
-
-        $letter = TblGroups::where('group_id', $request->group_id)->select('ticketLetter')->first();
-        return $letter->ticketLetter;
-    }
-
-    public function get_max_online_tickets(){
-
-        return TblTickets::latest('ticket_uid')->pluck('ticket_uid')->first();
-    }
-
-    public function addticket($mainid,$ticketinfoid,$request)
-    {
-        $ticket = TblTickets::create([
-                             'ticket_id'    => $mainid,
-                             'ticket_no'    => $ticketinfoid,
-                             'ticket_info'  => $request->fullname,
-                             'ticket_mobile'=> '+'.$request->phone_number,
-                             'group_id'     => $request->group_id,
+            $ticket = TblTickets::create([
+                             'ticket_id'    => $newbarcode,
+                             'ticket_no'    => $newticketid,
+                             'ticket_info'  => $data['fullname'],
+                             'ticket_mobile'=> '+993'.$data['phone_number'],
+                             'group_id'     => $data['group_id'],
                              'date_taken'   => now(),
                              'time_taken'   => now(),
                              'tcall'        => 0,
@@ -89,25 +51,32 @@ class TblTicketsController extends Controller
                              'ticket_lang'  => 'tm',
                              'tk_online'    =>1
                           ]);
-        return $ticket->id;
-    }
+            if($ticket){
 
-    public function deleteOldTickets()
-    {
-        TblTickets::whereDateNot('date_taken', Carbon::today())->remove();
+                return response ()->json(['message'=>'success']);
+            }
+                return response ()->json(['message'=>'failed']);
+
+        }
+        //TblTickets::whereDateNot('date_taken', Carbon::today())->remove();
     }
+   
     //store ticket end
 
     //ticket status start
     public function ticket_status(Request $request){
 
-         $tickets =  TblTickets::where('group_id', $request->group_id)->
-                                 whereDate('date_taken', Carbon::today())->
+         $data = $request->all();
+
+         $tickets =  TblTickets::where('group_id', $data['group_id'])->
+                                 //where('tcall', false)->
+                                 whereDate('time_taken', '=',Carbon::today())->
                                  select('time_taken','ticket_no')->
                                  get();
-         $my_ticket = TblTickets::where('group_id', $request->group_id)->
-                                  where('ticket_mobile', '+'.$request->phone_number)->
-                                  whereDate('date_taken', Carbon::today())->
+         $my_ticket = TblTickets::where('group_id', $data['group_id'])->
+                                  //where('tcall', false)->
+                                  where('ticket_mobile', '+993'.$data['phone_number'])->
+                                  whereDate('time_taken', '=', Carbon::today())->
                                   select('time_taken','ticket_no')->
                                   get();
 
@@ -117,7 +86,10 @@ class TblTicketsController extends Controller
     //my ticket start
     public function my_tickets(Request $request){
 
-        $my_ticket = TblTickets::where('ticket_mobile', '+'.$request->phone_number)->
+        $data = $request->all();
+
+        $my_ticket = TblTickets::where('ticket_mobile', '+993'.$data['phone_number'])->
+                                 whereDate('time_taken', '=',Carbon::today())->
                                  select('time_taken','ticket_no')->
                                  get();
 
