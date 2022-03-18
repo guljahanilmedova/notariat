@@ -20,9 +20,16 @@ class TblTicketsController extends Controller
             $groupLetter = $this->get_groupLetter($request);
             $max_ticket_uid = $this->get_max_online_tickets();
             $newbarcode = "$groupLetter"."I$max_ticket_uid";
-            $lastid = $this->addticket($newbarcode,$newticketid,$request);return $lastid;
+            $lastid = $this->addticket($newbarcode,$newticketid,$request);
+            if($lastid){
+
+                return response ()->json(['message'=>'success']);
+            }
+                return response ()->json(['message'=>'failed']);
+
         }
-        $this->deleteOldTickets();
+        //$this->deleteOldTickets();
+
     }
 
     public function checkTicketForDouble($request)
@@ -90,7 +97,7 @@ class TblTicketsController extends Controller
         TblTickets::whereDateNot('date_taken', Carbon::today())->remove();
     }
     //store ticket end
-    
+
     //ticket status start
     public function ticket_status(Request $request){
 
