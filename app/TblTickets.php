@@ -30,6 +30,7 @@ class TblTickets extends Model
         'sms_sended',
         'date_sms',
         'ticket_lang',
-        'tk_online'
+        'tk_online',
+        'device'
     ];
 }
