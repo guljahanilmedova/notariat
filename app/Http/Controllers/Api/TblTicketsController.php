@@ -12,19 +12,19 @@ class TblTicketsController extends Controller
 {
     //store ticket start
     public function store_ticket(Request $request){
-        
+
         $data = $request->all();
-        $ticketcount = count(TblTickets::where('ticket_mobile', '+993'.$data['phone_number'])->where('group_id',$data['group_id'])->whereDate('date_taken',Carbon::today())->get());  
-        
-        if($ticketcount<4){ 
-           
-            
+        $ticketcount = count(TblTickets::where('ticket_mobile', '+993'.$data['phone_number'])->where('group_id',$data['group_id'])->whereDate('date_taken',Carbon::today())->get());
+
+        if($ticketcount<4){
+
+
             $ticket_id =  count(TblTickets::where('group_id', $data['group_id'])->whereDate('date_taken',Carbon::today())->where('tk_online',1)->get())+1;
             $newticketid = "I$ticket_id";
             $groupLetter = TblGroups::where('group_id', $data['group_id'])->pluck('ticketLetter')->first();
             $max_ticket_uid = TblTickets::latest('ticket_uid')->pluck('ticket_uid')->first();
             $newbarcode = "$groupLetter"."I$max_ticket_uid";
-            
+
 
             $ticket = TblTickets::create([
                              'ticket_id'    => $newbarcode,
@@ -49,18 +49,20 @@ class TblTicketsController extends Controller
                              'sms_sended'   => 0,
                              'date_sms'     => '1900-1-1',
                              'ticket_lang'  => 'tm',
-                             'tk_online'    =>1
+                             'tk_online'    => 1,
+                             'device'       => $data['device_id']        //0=>terminal, 1=>web, 2=>apk
                           ]);
             if($ticket){
 
-                return response ()->json(['message'=>'success']);
+                return response ()->json(['data'=> $ticket]);
             }
-                return response ()->json(['message'=>'failed']);
+                $ticket = [];
+                return response ()->json(['data'=> $ticket]);
 
         }
         //TblTickets::whereDateNot('date_taken', Carbon::today())->remove();
     }
-   
+
     //store ticket end
 
     //ticket status start
