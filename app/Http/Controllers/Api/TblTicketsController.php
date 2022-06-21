@@ -71,15 +71,15 @@ class TblTicketsController extends Controller
          $data = $request->all();
 
          $tickets =  TblTickets::where('group_id', $data['group_id'])->
-                                 where('device', $data['device_id'])->
+                                 //where('device', $data['device_id'])->
                                  whereDate('time_taken', '=',Carbon::today())->
-                                 select('time_taken','ticket_no')->
+                                 select('time_taken','ticket_no','device')->
                                  get();
          $my_ticket = TblTickets::where('group_id', $data['group_id'])->
-                                  where('device', $data['device_id'])->
+                                  //where('device', $data['device_id'])->
                                   where('ticket_mobile', '+993'.$data['phone_number'])->
                                   whereDate('time_taken', '=', Carbon::today())->
-                                  select('time_taken','ticket_no')->
+                                  select('time_taken','ticket_no','device')->
                                   get();
 
          return response()->json([ 'tickets'=>$tickets, 'my_ticket'=>$my_ticket ]);
@@ -92,7 +92,7 @@ class TblTicketsController extends Controller
 
         $my_ticket = TblTickets::where('ticket_mobile', '+993'.$data['phone_number'])->
                                  whereDate('time_taken', '=',Carbon::today())->
-                                 select('time_taken','ticket_no')->
+                                 select('time_taken','ticket_no','device')->
                                  get();
 
         return response()->json([ 'my_ticket'=>$my_ticket ]);
