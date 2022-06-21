@@ -72,13 +72,13 @@ class TblTicketsController extends Controller
 
          $tickets =  TblTickets::where('group_id', $data['group_id'])->
                                  //where('device', $data['device_id'])->
-                                 whereDate('time_taken', '=',Carbon::today())->
+                                 whereDate('date_call', '!=',Carbon::today())->
                                  select('time_taken','ticket_no','device')->
                                  get();
          $my_ticket = TblTickets::where('group_id', $data['group_id'])->
                                   //where('device', $data['device_id'])->
                                   where('ticket_mobile', '+993'.$data['phone_number'])->
-                                  whereDate('time_taken', '=', Carbon::today())->
+                                  whereDate('date_call', '!=', Carbon::today())->
                                   select('time_taken','ticket_no','device')->
                                   get();
 
